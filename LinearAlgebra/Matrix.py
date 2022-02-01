@@ -263,8 +263,3 @@ def OnlyNums(matrix: Matrix):
                 if not (isinstance(element, int) or isinstance(element, float) or isinstance(element, complex)):
                     return False
         return True
-M0 = Matrix([[7, 4, -3], [2, 6, -1], [0, 4, -1]])
-M1 = Matrix([[-2, 4, 5], [3, 5, -3], [6, 2, 7]])
-M2 = Matrix([[-8, 2, 4], [1, 4, 6]])
-M2.transpose()
-print((M0 - M1 * 2) * M2)
