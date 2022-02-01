@@ -110,69 +110,6 @@ def intersection(*args: list):
         if all(el in arg for arg in args[1:]):
             res.append(el)
     return res
-def rotate_matrix(Matrix: iter, times: int):
-    if times >= 0:
-        for _ in range(times):
-            res = [[0 for _ in range(len(Matrix))] for _ in range(len(Matrix))]
-            for i in range(len(Matrix)):
-                for j in range(len(Matrix)):
-                    res[i][j] = Matrix[len(Matrix) - j - 1][i]
-            Matrix = [row.copy() for row in res]
-    else:
-        for _ in range(-times):
-            res = [[0 for _ in range(len(Matrix))] for _ in range(len(Matrix))]
-            for i in range(len(Matrix)):
-                for j in range(len(Matrix)):
-                    res[i][j] = Matrix[j][len(Matrix) - i - 1]
-            Matrix = [row.copy() for row in res]
-    return Matrix
-def maximum_seating(seats: iter):
-    if not all(isinstance(i, int) for i in seats):
-        raise TypeError('Integers expected!')
-    total, seat = 0, 0
-    while seat in range(len(seats)):
-        if not seats[seat]:
-            try:
-                if not (seats[seat + 1] or seats[seat + 2]):
-                    total += 1
-                    seats[seat] = 1
-                    seat += 2
-            except IndexError:
-                total += 1
-                seats[seat] = 1
-        else:
-            seat += 2
-        seat += 1
-    return total
-def longest_substring(digits: str):
-    if digits.isdigit():
-        longest, d = None, 0
-        while d in range(len(digits)):
-            if int(digits[d]) % 2:
-                so_far, curr = '', 0
-                while (int(digits[d]) + curr) % 2:
-                    so_far += digits[d]
-                    d += 1
-                    curr += 1
-                    if d == len(digits):
-                        break
-                d -= 1
-            else:
-                so_far, curr = '', 0
-                while not (int(digits[d]) + curr) % 2:
-                    so_far += digits[d]
-                    d += 1
-                    curr += 1
-                    if d == len(digits):
-                        break
-                d -= 1
-            if longest is None:
-                longest = so_far
-            elif len(so_far) > len(longest):
-                longest = so_far
-            d += 1
-        return longest
-    raise ValueError('Digits expected!')
 def permutations_where_els_match_indexes(n: int):
     return int(factorial(n) * sum((-1) ** k / factorial(k + 1) for k in range(n)))
 def permutations(iterable: list):
