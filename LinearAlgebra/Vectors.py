@@ -29,6 +29,20 @@ class Vector2D:
         if isinstance(other, Vector2D):
             return not self.dot_product(other)
         raise TypeError('Another vector expected!')
+    def mixed_product(self, v1, v2):
+        if isinstance(v1, Vector2D):
+            if isinstance(v1, Vector3D):
+                if isinstance(v2, Vector3D):
+                    return v2.z() * (self.__x * v1.y() - self.__y * v1.x()) + v1.z() * (self.__y * v2.x() - self.__x * v2.y())
+                if isinstance(v2, Vector2D):
+                    return v1.z() * (self.__y * v2.__x - self.__x * v2.__y)
+                raise TypeError('Two vectors expected!')
+            if isinstance(v2, Vector3D):
+                return v2.z() * (self.__x * v1.__y - self.__y * v1.__x)
+            if isinstance(v2, Vector2D):
+                return 0
+            raise TypeError('Two vectors expected!')
+        raise TypeError('Two vectors expected!')
     def __neg__(self):
         return Vector2D(-self.__x, -self.__y)
     def __abs__(self):
@@ -95,6 +109,14 @@ class Vector3D(Vector2D):
                 return self.x() * other.y() == other.x() * self.y() and self.x() * other.__z == other.x() * self.__z and self.y() * other.__z == other.y() * self.__z
             return False
         raise TypeError('Vector expected!')
+    def mixed_product(self, v1: Vector2D, v2: Vector2D):
+        if isinstance(v1, Vector3D):
+            if isinstance(v2, Vector3D):
+                return (self.x() * v1.y() - self.y() * v1.x()) * v2.__z + (self.__z * v1.x() - self.x() * v1.__z) * v2.y() + (self.y() * v1.__z - self.__z * v1.y()) * v2.x()
+            return (self.__z * v1.x() - self.x() * v1.__z) * v2.y() + (self.y() * v1.__z - self.__z * v1.y()) * v2.x()
+        if isinstance(v2, Vector3D):
+            return (self.x() * v1.y() - self.y() * v1.x()) * v2.__z + self.__z * (v1.x() * v2.y() - v1.y() * v2.x())
+        return self.__z * (v1.x() * v2.y() - v1.y() * v2.x())
     def __neg__(self):
         return Vector3D(-self.x(), -self.y(), -self.__z)
     def __abs__(self):
