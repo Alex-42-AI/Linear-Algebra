@@ -10,7 +10,8 @@ The vectors have methods for:
 7) getting the length of the vector;
 8) addition and subtraction of two vectors;
 9) vector product of two vectors;
-10) dividing the vector by a number.
+10) dividing the vector by a number;
+11) checking whether two vectors are equal.
 
 The Matrix.py file has an implementation of a matrix, along with some necessary functions. It also has methods, for:
 1) checking whether the matrix is squared;
@@ -20,6 +21,7 @@ The Matrix.py file has an implementation of a matrix, along with some necessary 
 5) calculating the determinant of the matrix - one via neutralising its elements under the main diagonal and another using recursion;
 6) negation of the matrix;
 7) sum, difference, product and division of two matrices;
-8) product, division and powering of a matrix with a number.
+8) product, division and powering of a matrix with a number;
+9) checking whether two matrices are equal.
 
 The file with many functions and mathematical formulas contains the function round_if_possible. It is necessary, because sometimes, when dividing two numbers, the result will return something like 5.99999999999999996 or 6.00000000000000002 instead of 6. The rest of the functions are pretty self-explanatory. There are also a couple of implementations - one of a rational number and one of a custom-made set.
