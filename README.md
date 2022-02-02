@@ -12,4 +12,13 @@ The vectors have methods for:
 9) vector product of two vectors;
 10) dividing the vector by a number.
 
-The same methods are changed accordingly in the 3D vector.
+The Matrix.py file has an implementation of a matrix, along with some necessary functions. It also has methods, for:
+1) checking whether the matrix is squared;
+2) transposing the matrix;
+3) returning a matrix, result of neutralising the elements under the main diagonal of the original one, as well as the number of inversions made;
+4) checking whether the rows of the matrix are linearly dependent;
+5) calculating the determinant of the matrix - one via neutralising its elements under the main diagonal and another using recursion;
+6) negation of the matrix;
+7) sum, difference, product and division of two matrices;
+8) product, division and powering of a matrix with a number.
+
