@@ -1,4 +1,5 @@
-from Personal.MathFormulas import round_if_possible, GCF
+from LinearAlgebra.Vectors import Vector2D, Vector3D
+from MathFormulas import round_if_possible, GCF
 def inversions(*args: float):
     Inversions = 0
     for i in range(len(args)):
@@ -29,16 +30,22 @@ def identity_matrix(n: int):
             res[i].append(int(i == j))
     return Matrix(res)
 class Matrix:
-    def __init__(self, Matrix1: iter):
-        if not LegitMatrix(Matrix1):
-            raise TypeError('This isn\'t an actual matrix!')
-        if not RectangularMatrix(Matrix1):
-            raise ValueError('All matrix rows should have the same number of elements!')
-        if not OnlyNums(Matrix1):
-            raise ValueError('Matrices can only contain numbers!')
-        self.__Matrix, self.__rows, self.__cols, self.__curr_index = Matrix1, len(Matrix1), 0, -1
-        if self.__rows:
-            self.__cols = len(Matrix1[0])
+    def __init__(self, matrix: (iter, Vector2D)):
+        if isinstance(matrix, Vector2D):
+            self.__Matrix, self.__rows, self.__cols = [[matrix.x()], [matrix.y()]], 2, 1
+            if isinstance(matrix, Vector3D):
+                self.__Matrix += [matrix.z()]
+                self.__rows += 1
+        else:
+            if not LegitMatrix(matrix):
+                raise TypeError('This isn\'t an actual matrix!')
+            if not RectangularMatrix(matrix):
+                raise ValueError('All matrix rows should have the same number of elements!')
+            if not OnlyNums(matrix):
+                raise ValueError('Matrices can only contain numbers!')
+            self.__Matrix, self.__rows, self.__cols, self.__curr_index = matrix, len(matrix), 0, -1
+            if self.__rows:
+                self.__cols = len(matrix[0])
     def square(self):
         return self.__rows == self.__cols
     def transpose(self):
@@ -264,3 +271,8 @@ def OnlyNums(matrix: Matrix):
                 if not isinstance(element, (int, float, complex)):
                     return False
         return True
+M0 = Matrix([[7, 4, -3], [2, 6, -1], [0, 4, -1]])
+M1 = Matrix([[-2, 4, 5], [3, 5, -3], [6, 2, 7]])
+M2 = Matrix([[-8, 2, 4], [1, 4, 6]])
+M2.transpose()
+print((M0 - M1 * 2) * M2)
