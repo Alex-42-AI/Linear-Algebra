@@ -11,8 +11,9 @@ def sum_in_arithmetic_progression(a_1: float, a_n: float, d=1):
 def sum_in_geometric_progression(a_1: float, a_n: float, q=2):
     return round_if_possible((q * a_n - a_1) / (q - 1))
 def conjecture(n: int):
+    n = abs(n)
     print(n)
-    while n ** 2 - 1:
+    while n > 1:
         if n % 2:
             n = 3 * n + 1
         else:
@@ -240,8 +241,7 @@ class Set:
         if isinstance(other, Set):
             res = Set(self.__sequence)
             for el in other.__sequence:
-                if el not in self.__sequence:
-                    res.add(el)
+                res.add(el)
             return res
     def __mul__(self, other):
         res = Set([])
