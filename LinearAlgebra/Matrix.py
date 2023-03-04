@@ -1,19 +1,19 @@
 from LinearAlgebra.Vectors import Vector2D, Vector3D
-from MathFormulas import round_if_possible, GCF
+from MathFormulas import round_if_possible
 def inversions(*args: float):
     Inversions = 0
     for i in range(len(args)):
         for arg in args[i:]:
             Inversions += args[i] > arg
     return Inversions
-def LegitMatrix(matrix):
+def legitMatrix(matrix):
     if not isinstance(matrix, list):
         return False
     for row in matrix:
         if not isinstance(row, list):
             return False
     return True
-def RectangularMatrix(matrix):
+def rectangularMatrix(matrix):
     try:
         a = len(matrix[0])
         for row in matrix:
@@ -31,76 +31,62 @@ def identity_matrix(n: int):
     return Matrix(res)
 class Matrix:
     def __init__(self, matrix: (iter, Vector2D)):
+        self.__curr_index = -1
         if isinstance(matrix, Vector2D):
             self.__Matrix, self.__rows, self.__cols = [[matrix.x()], [matrix.y()]], 2, 1
             if isinstance(matrix, Vector3D):
                 self.__Matrix += [matrix.z()]
                 self.__rows += 1
         else:
-            if not LegitMatrix(matrix):
+            if not legitMatrix(matrix):
                 raise TypeError('This isn\'t an actual matrix!')
-            if not RectangularMatrix(matrix):
+            if not rectangularMatrix(matrix):
                 raise ValueError('All matrix rows should have the same number of elements!')
-            if not OnlyNums(matrix):
+            if not onlyNums(matrix):
                 raise ValueError('Matrices can only contain numbers!')
-            self.__Matrix, self.__rows, self.__cols, self.__curr_index = matrix, len(matrix), 0, -1
+            self.__Matrix, self.__rows, self.__cols = matrix, len(matrix), 0
             if self.__rows:
                 self.__cols = len(matrix[0])
     def square(self):
         return self.__rows == self.__cols
-    def transpose(self):
-        transposed = []
-        for _ in range(self.__cols):
-            transposed.append([])
-        for col in range(self.__cols):
-            for row in range(self.__rows):
-                transposed[col].append(self.__Matrix[row][col])
-        self.__Matrix, self.__rows, self.__cols = transposed, self.__cols, self.__rows
+    def transposed(self):
+        return Matrix([[self.__Matrix[i][j] for i in range(self.__rows)] for j in range(self.__cols)])
     def copy(self):
         return Matrix(self.__Matrix)
     def rows(self):
         return self.__rows
     def cols(self):
         return self.__cols
-    def NeutralizingElementsUnderMainDiagonal(self):
-        Copy, Inversions = self.copy(), 0
+    def neutralizingElementsUnderMainDiagonal(self):
+        res, total_inversions = self.copy(), 0
         for row in range(self.__rows - 1):
-            if not Copy[row][row]:
-                Inversions += 1
-                I = row
+            if not res[row][row]:
+                total_inversions += 1
+                i = row
                 for r in range(row, self.__rows):
-                    if Copy[r][row]:
+                    if res[r][row]:
                         break
-                    I += 1
-                    if I == self.__rows:
-                        for row1 in range(Copy.__rows):
-                            d = GCF(*Copy[row1]) * (-1) ** (len([el for el in Copy[row1] if el < 0]) > len([el for el in Copy[row1] if el > 0]))
-                            for col in range(Copy.__rows):
-                                Copy[row1][col] = round_if_possible(Copy[row1][col] / d)
-                        return Copy, Inversions
-                Copy[row], Copy[I] = Copy[I], Copy[row]
+                    i += 1
+                    if i == self.__rows:
+                        return res, total_inversions
+                res[row], res[i] = res[i], res[row]
             RemoveFromMatrix = Matrix([[0 for _ in range(self.__rows)] for _ in range(row + 1)])
             for row1 in range(row + 1, self.__rows):
                 RemoveFromMatrix.append([])
                 for col in range(self.__rows):
-                    a = round_if_possible(Copy[row][col] * Copy[row1][row] / Copy[row][row])
-                    RemoveFromMatrix[row1].append(a)
-            Copy -= RemoveFromMatrix
-        for row in range(Copy.__rows):
-            d = GCF(*Copy[row]) * (-1) ** (len([el for el in Copy[row] if el < 0]) > len([el for el in Copy[row] if el > 0]))
-            for col in range(Copy.__rows):
-                Copy[row][col] = round_if_possible(Copy[row][col] / d)
-        return Copy, Inversions
-    def LinearlyDependent(self):
-        matrix = self.NeutralizingElementsUnderMainDiagonal()[0]
+                    RemoveFromMatrix[row1].append(round_if_possible(res[row][col] * res[row1][row] / res[row][row]))
+            res -= RemoveFromMatrix
+        return res, total_inversions
+    def linearlyDependent(self):
+        matrix = self.neutralizingElementsUnderMainDiagonal()[0]
         for i in range(matrix.__rows):
             if not matrix[i][i]:
                 return True
         return False
-    def DeterminantByNeutralizingElements(self):
+    def determinant(self):
         if self.square():
-            Res = self.NeutralizingElementsUnderMainDiagonal()
-            res, p = Res[0] * (-1) ** Res[1], 1
+            res = self.neutralizingElementsUnderMainDiagonal()
+            res, p = res[0] * (-1) ** res[1], 1
             for i, r in enumerate(res):
                 p *= r[i]
             return round_if_possible(p)
@@ -110,11 +96,11 @@ class Matrix:
         if not self.__rows:
             self.__cols = len(v)
         self.__rows += 1
-    def BruteForceDeterminant(self):
+    def determinantRec(self):
         if self.square():
             if self.__rows == 1:
                 return round_if_possible(self.__Matrix[0][0])
-            if self.LinearlyDependent():
+            if self.linearlyDependent():
                 return 0
             if self.__rows == 2:
                 return round_if_possible(self.__Matrix[0][0] * self.__Matrix[1][1] - self.__Matrix[0][1] * self.__Matrix[1][0])
@@ -123,49 +109,53 @@ class Matrix:
             det = 0
             for k in range(self.__rows):
                 if self.__Matrix[0][k]:
-                    New_Matrix = Matrix([])
+                    newMatrix = Matrix([])
                     for row in range(1, self.__rows):
-                        New_Matrix.append([])
+                        newMatrix.append([])
                         for column in range(self.__rows):
                             if column == k:
                                 continue
-                            New_Matrix[row - 1].append(self.__Matrix[row][column])
-                    det += (-1) ** k * self.__Matrix[0][k] * New_Matrix.BruteForceDeterminant()
+                            newMatrix[row - 1].append(self.__Matrix[row][column])
+                    newMatrix.__cols = self.__cols - 1
+                    det += (-1) ** k * self.__Matrix[0][k] * newMatrix.determinantRec()
             return round_if_possible(det)
+        print(self)
         raise ValueError('Square matrices only!')
-    def InverseMatrix(self):
-        if self.DeterminantByNeutralizingElements():
+    def inverseMatrix(self):
+        if self.determinant():
             res = Matrix([self.__Matrix[i].copy() for i in range(self.__rows)])
-            IdentityMatrix = identity_matrix(res.__rows)
+            E_n = identity_matrix(res.__rows)
             for row in range(res.__rows - 1):
                 if not res.__Matrix[row][row]:
-                    I = 0
+                    i = 0
                     for Row in range(res.__rows):
                         if res.__Matrix[Row][row]:
                             break
-                        I += 1
-                    res.__Matrix[row], res.__Matrix[I] = res.__Matrix[I], res.__Matrix[row]
-                    IdentityMatrix[row], IdentityMatrix[I] = IdentityMatrix[I], IdentityMatrix[row]
-                RemoveFromMatrix, RemoveFromIdentityMatrix = Matrix([[0 for _ in range(res.__rows)] for _ in range(row + 1)]), Matrix([[0 for _ in range(res.__rows)] for _ in range(row + 1)])
+                        i += 1
+                    res.__Matrix[row], res.__Matrix[i] = res.__Matrix[i], res.__Matrix[row]
+                    E_n[row], E_n[i] = E_n[i], E_n[row]
+                toRemoveFromSelf, toRemoveFromE_n = Matrix([[0 for _ in range(res.__rows)] for _ in range(row + 1)]), Matrix([[0 for _ in range(res.__rows)] for _ in range(row + 1)])
                 for row1 in range(row + 1, res.__rows):
-                    RemoveFromMatrix.append([]), RemoveFromIdentityMatrix.append([])
+                    toRemoveFromSelf.append([]), toRemoveFromE_n.append([])
                     for col in range(res.__rows):
-                        a, b = round_if_possible(res.__Matrix[row][col] * round_if_possible(res.__Matrix[row1][row]) / round_if_possible(res.__Matrix[row][row])), round_if_possible(IdentityMatrix[row][col] * res.__Matrix[row1][row] / res.__Matrix[row][row])
-                        RemoveFromMatrix[row1].append(a), RemoveFromIdentityMatrix[row1].append(b)
-                res -= RemoveFromMatrix
-                IdentityMatrix -= RemoveFromIdentityMatrix
+                        a, b = round_if_possible(res.__Matrix[row][col] * round_if_possible(res.__Matrix[row1][row]) / round_if_possible(res.__Matrix[row][row])), round_if_possible(E_n[row][col] * res.__Matrix[row1][row] / res.__Matrix[row][row])
+                        toRemoveFromSelf[row1].append(a), toRemoveFromE_n[row1].append(b)
+                res -= toRemoveFromSelf
+                E_n -= toRemoveFromE_n
             for row in range(res.__rows - 1, 0, -1):
                 for row1 in range(row - 1, -1, -1):
                     for col in range(res.__rows):
                         A = 0
                         if res.__Matrix[row1][row]:
-                            A = round_if_possible(res.__Matrix[row1][row] * IdentityMatrix[row][col] / res.__Matrix[row][row])
-                        IdentityMatrix[row1][col] -= A
+                            A = round_if_possible(res.__Matrix[row1][row] * E_n[row][col] / res.__Matrix[row][row])
+                        E_n[row1][col] -= A
             for r in range(res.__rows):
                 for c in range(res.__rows):
-                    IdentityMatrix[r][c] = round_if_possible(IdentityMatrix[r][c] / res.__Matrix[r][r])
-            return IdentityMatrix
+                    E_n[r][c] = round_if_possible(E_n[r][c] / res.__Matrix[r][r])
+            return E_n
         raise ValueError('This matrix has a determinant of zero!')
+    def __reversed__(self):
+        return self.inverseMatrix()
     def __iter__(self):
         return self
     def __next__(self):
@@ -175,6 +165,8 @@ class Matrix:
         self.__curr_index = -1
         raise StopIteration()
     def __getitem__(self, i: int):
+        if isinstance(i, slice):
+            return Matrix(self.__Matrix[i])
         i %= self.__rows
         for j, r in enumerate(self.__Matrix):
             if j == i:
@@ -184,7 +176,7 @@ class Matrix:
             raise Exception('Can\'t assign the row with a different length than the rest!')
         self.__Matrix[key] = list(value)
     def __neg__(self):
-        return self.copy() * -1
+        return -1 * self
     def __add__(self, other):
         if self.__rows == other.__rows and self.__rows == other.__rows:
             res = Matrix([[] for _ in range(self.__rows)])
@@ -204,68 +196,56 @@ class Matrix:
         except TypeError or ValueError:
             raise ValueError('Can\'t subtract!')
     def __mul__(self, other):
-        res = Matrix([[] for _ in range(self.__rows)])
-        for i in range(self.__rows):
-            res.__Matrix[i] = [self.__Matrix[i][j] for j in range(self.__cols)]
-        res.__rows, res.__cols = self.__rows, self.__cols
         if isinstance(other, (int, float, complex)):
-            for I in range(res.__rows):
-                for J in range(res.__cols):
-                    res.__Matrix[I][J] = round_if_possible(res.__Matrix[I][J] * other)
-            return res
-        elif isinstance(other, Matrix):
-            if res.__cols == other.__rows:
-                ResultMatrix = Matrix([[] for _ in res.__Matrix])
-                ResultMatrix.__rows, ResultMatrix.__cols = res.__rows, other.__cols
-                for I in range(res.__rows):
-                    for J in range(other.__cols):
-                        ResultMatrix[I].append([])
-                        s = 0
-                        for k in range(res.__cols):
-                            s += res.__Matrix[I][k] * other.__Matrix[k][J]
-                        ResultMatrix.__Matrix[I][J] = round_if_possible(s)
-                return ResultMatrix
-            return 'These matrices can\'t be multiplied! Don\'t forget, that matrices don\'t always commute!'
+            return Matrix([[*map(lambda x: x * other, (r[i] for i in range(self.__cols)))] for r in self.__Matrix])
+        if isinstance(other, Matrix):
+            if self.__cols == other.__rows:
+                return Matrix([[sum(self[r][k] * other[k][c] for k in range(self.__cols)) for c in range(other.__cols)] for r in range(self.__rows)])
+            raise ValueError('These matrices can\'t be multiplied, because of their dimentions! Don\'t forget, that matrices don\'t always commute!')
+        raise TypeError(f"Unsupported type: {type(other)}!")
+    def __rmul__(self, other):
+        return other * self if isinstance(other, Matrix) else self * other
     def __truediv__(self, other):
         if isinstance(other, (int, float, complex)):
             return self * (other ** -1)
         elif isinstance(other, Matrix):
-            if other.BruteForceDeterminant():
-                return self * other.InverseMatrix()
+            if other.determinantRec():
+                return self * other.inverseMatrix()
             raise ZeroDivisionError('Can\'t divide by a matrix with a zero determinant!')
     def __pow__(self, power: int):
         if self.square():
             if power < 0:
-                return self.__Matrix.InverseMatrix(self.__Matrix.matrix_to_power(self.__Matrix, -power))
+                return (self ** -power).inverseMatrix()
             if not power:
                 return identity_matrix(self.__rows)
-            Matrix1 = Matrix([self.__Matrix[i].copy() for i in range(self.__rows)])
+            res = Matrix([self.__Matrix[i].copy() for i in range(self.__rows)])
             for _ in range(power - 1):
-                Matrix1 *= self
-            return Matrix1
+                res *= self
+            return res
         raise Exception('A matrix can be powered to a number only if it\'s a square matrix!')
     def __eq__(self, other):
         if isinstance(other, (int, float, complex)):
-            return self.BruteForceDeterminant() == other if self.square() else False
+            return self.determinantRec() == other if self.square() else False
         if isinstance(other, Matrix):
-            if (self.__rows, self.__cols) == (other.__rows, other.__cols):
-                for i in range(self.__rows):
-                    for j in range(self.__cols):
-                        if self.__Matrix[i][j] != other.__Matrix[i][j]:
-                            return False
-                return True
-            return False
+            if (self.__rows, self.__cols) != (other.__rows, other.__cols):
+                return False
+            for i in range(self.__rows):
+                for j in range(self.__cols):
+                    if self.__Matrix[i][j] != other.__Matrix[i][j]:
+                        return False
+            return True
+        return False
     def __len__(self):
         return self.__rows
     def __str__(self):
         res = ''
-        for I in range(self.__rows):
-            res += str(tuple(self.__Matrix[I])) + '\n' * (I < self.__rows - 1)
+        for r in self:
+            res += str(tuple(r)) + '\n'
         return res
     def __repr__(self):
         return str(self)
-def OnlyNums(matrix: Matrix):
-    if LegitMatrix(matrix):
+def onlyNums(matrix: Matrix):
+    if legitMatrix(matrix):
         for row in matrix:
             for element in row:
                 if not isinstance(element, (int, float, complex)):
