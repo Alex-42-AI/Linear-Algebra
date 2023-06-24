@@ -35,23 +35,21 @@ def SCD(*args: int):
     for i in range(res, max(abs(i) for i in args) - 1, -1):
         res += (i - res) * all(not i % arg for arg in args)
     return res
-def bin_to_dec(a):
-    if isinstance(a, str):
-        try:
-            a = int(a)
-        except ValueError:
-            raise ValueError('Unsupported value! Argument should contain digits only or be a number!')
+def bin_to_dec(a: str):
     res = 0
-    for i in range(len(str(a))):
-        if str(a)[i] not in '01':
+    for i, b in enumerate(a):
+        if b not in '01':
             raise ValueError(f'{a} is not a binary number!')
-        res += int(str(a)[len(str(a)) - i - 1]) * 2 ** i
+        if int(b):
+            res += 2 ** (len(a) - i - 1)
     return res
-def dec_to_bin(n: int):
-    res = ''
+def dec_to_bin(n: float):
+    res, _pow = '', floor(log2(n))
     while n:
-        res += str(10 ** floor(log(n, 2)))
-        n -= 2 ** floor(log(n, 2))
+        res += str(int(n >= 2 ** _pow))
+        if n >= 2 ** _pow:
+            n -= 2 ** _pow
+        _pow -= 1
     return res
 def hex_to_dec(a):
     if isinstance(a, int):
