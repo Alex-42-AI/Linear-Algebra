@@ -24,4 +24,4 @@ The Matrix.py file has an implementation of a matrix, along with some necessary 
 8) product, division and powering of a matrix with a number;
 9) checking whether two matrices are equal.
 
-The file with many functions and mathematical formulas contains the function round_if_possible. It is necessary, because sometimes, when dividing two numbers, the result will return something like 5.99999999999999996 or 6.00000000000000002 instead of 6. The rest of the functions are pretty self-explanatory. There are also a couple of implementations - one of a rational number and one of a custom-made set.
+The file with many functions and mathematical formulas contains the function round_if_possible. It is necessary, because sometimes, when dividing two numbers, the result will return something like 5.99999999999999996 or 6.00000000000000002 instead of 6. The rest of the functions are pretty self-explanatory. There is also an implementation of a rational number.
