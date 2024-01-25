@@ -119,7 +119,6 @@ class Matrix:
                     newMatrix.__cols = self.__cols - 1
                     det += (-1) ** k * self.__Matrix[0][k] * newMatrix.determinantRec()
             return round_if_possible(det)
-        print(self)
         raise ValueError('Square matrices only!')
     def inverseMatrix(self):
         if self.determinant():
