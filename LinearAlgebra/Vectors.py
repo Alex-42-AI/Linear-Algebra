@@ -1,17 +1,16 @@
-from math import asin, sqrt
+from math import asin, acos, sqrt
 class Vector2D:
-    def __init__(self, x=0.0, y=0.0):
-        if type(x) not in [int, float] or type(y) not in [int, float]:
-            raise TypeError('Real numerical values expected!')
+    def __init__(self, x: int | float = 0.0, y: int | float = 0.0):
         self.__x, self.__y = x, y
     def x(self):
         return self.__x
     def y(self):
         return self.__y
     def polar(self):
+        if not self:
+            return 0, 0
         radius = abs(self)
-        angle = asin(self.__y / radius)
-        return radius, angle
+        return radius, asin(self.__y / radius)
     def copy(self):
         return Vector2D(self.__x, self.__y)
     def dot_product(self, other):
@@ -43,6 +42,8 @@ class Vector2D:
                 return 0
             raise TypeError('Two vectors expected!')
         raise TypeError('Two vectors expected!')
+    def __bool__(self):
+        return bool(abs(self))
     def __neg__(self):
         return Vector2D(-self.__x, -self.__y)
     def __abs__(self):
@@ -54,19 +55,22 @@ class Vector2D:
             return Vector2D(self.__x + other.__x, self.__y + other.__y)
         raise TypeError('Another vector expected!')
     def __sub__(self, other):
-        if isinstance(other, Vector3D):
-            return Vector3D(self.__x - other.x(), self.__y - other.y(), -other.z())
         if isinstance(other, Vector2D):
-            return Vector2D(self.__x - other.__x, self.__y - other.__y)
+            return self + -other
         raise TypeError('Subtraction only defined between vectors!')
     def __mul__(self, other):
-        if isinstance(other, int) or isinstance(other, float):
+        if isinstance(other, (int, float)):
             return Vector2D(self.__x * other, self.__y * other)
         if isinstance(other, Vector3D):
-            return Vector3D(self.__y * other.z(), -self.__x - other.z(), self.__x * other.y() - self.__y * other.x())
+            return Vector3D(self.__y * other.z(), -self.__x * other.z(), self.__x * other.y() - self.__y * other.x())
         if isinstance(other, Vector2D):
             return Vector3D(0, 0, self.__x * other.__y - self.__y * other.__x)
-        raise TypeError('A real number or another vector expected!')
+        raise TypeError(f'Unsupported type: {type(other)}!')
+    def __rmul__(self, other):
+        res = self * other
+        if isinstance(other, Vector2D):
+            res *= -1
+        return res
     def __truediv__(self, other):
         if isinstance(other, int) or isinstance(other, float):
             return Vector2D(self.__x / other, self.__y / other)
@@ -76,30 +80,40 @@ class Vector2D:
             return (self.__x, self.__y, 0) == (other.x(), other.y(), other.z())
         if isinstance(other, Vector2D):
             return (self.__x, self.__y) == (other.__x, other.__y)
-        return (self.__x, self.__y) == other
+        return (self.__x, self.__y) == other or (self.__x, self.__y, 0) == other
     def __str__(self):
         return f'V({self.__x}, {self.__y})'
     def __repr__(self):
         return str(self)
 class Vector3D(Vector2D):
-    def __init__(self, x=0.0, y=0.0, z=0.0):
+    def __init__(self, x: int | float = 0.0, y: int | float = 0.0, z: int | float = 0.0):
         super().__init__(x, y)
-        if type(z) not in [int, float]:
-            raise TypeError('Real numerical values expected!')
         self.__z = z
     def z(self):
         return self.__z
     def polar(self):
-        radius = abs(self)
-        angle_x_y, angle_x_z = asin(self.y() / sqrt(self.x() ** 2 + self.y() ** 2)), asin(self.__z / sqrt(self.x() ** 2 + self.__z ** 2))
-        return radius, angle_x_y, angle_x_z
+        if not self:
+            return 0, 0, 0
+        cos_a = self.x() / sqrt(self.x() ** 2 + self.y() ** 2)
+        cos_b = self.x() / sqrt(self.x() ** 2 + self.__z ** 2)
+        a1, a2 = asin(self.y() / sqrt(self.x() ** 2 + self.y() ** 2)), acos(cos_a)
+        b1, b2 = asin(self.__z / sqrt(self.x() ** 2 + self.__z ** 2)), acos(cos_b)
+        if cos_a >= 0:
+            a = a1
+        else:
+            a = (-1) ** (a1 < 0) * a2
+        if cos_b >= 0:
+            b = b1
+        else:
+            b = (-1) ** (b1 < 0) * b2
+        return abs(self), a, b
     def copy(self):
         return Vector3D(self.x(), self.y(), self.__z)
     def dot_product(self, other):
         if isinstance(other, Vector3D):
             return self.x() * other.x() + self.y() * other.y() + self.__z * other.__z
         if isinstance(other, Vector2D):
-            return self.x() * other.x() + self.y() * other.y()
+            return super().dot_product(other)
         raise TypeError('Another vector expected!')
     def parallel(self, other):
         if isinstance(other, Vector2D):
@@ -134,13 +148,15 @@ class Vector3D(Vector2D):
             return Vector3D(self.x() - other.x(), self.y() - other.y(), self.__z)
         raise TypeError('Subtraction only defined between vectors!')
     def __mul__(self, other):
-        if isinstance(other, int) or isinstance(other, float):
+        if isinstance(other, (int, float)):
             return Vector3D(self.x() * other, self.y() * other, self.__z * other)
         if isinstance(other, Vector3D):
-            return Vector3D(self.y() * other.__z - self.__z * other.y(), self.__z * other.x() - self.x() - other.__z, self.x() * other.y() - self.y() * other.x())
+            return Vector3D(self.y() * other.__z - self.__z * other.y(), self.__z * other.x() - self.x() * other.__z, self.x() * other.y() - self.y() * other.x())
         if isinstance(other, Vector2D):
             return Vector3D(-self.__z * other.y(), self.__z * other.x(), self.x() * other.y() - self.y() * other.x())
         raise TypeError('A real number or another vector expected!')
+    def __rmul__(self, other):
+        return self * other
     def __truediv__(self, other):
         if isinstance(other, int) or isinstance(other, float):
             return Vector3D(self.x() / other, self.y() / other, self.__z / other)
