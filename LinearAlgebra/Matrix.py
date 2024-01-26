@@ -1,5 +1,5 @@
-from LinearAlgebra.Vectors import Vector2D, Vector3D
-from MathFormulas import round_if_possible
+from Personal.LinearAlgebra.Vectors import Vector2D, Vector3D
+from Personal.MathFormulas import round_if_possible
 def inversions(*args: float):
     Inversions = 0
     for i in range(len(args)):
@@ -30,7 +30,7 @@ def identity_matrix(n: int):
             res[i].append(int(i == j))
     return Matrix(res)
 class Matrix:
-    def __init__(self, matrix: (iter, Vector2D)):
+    def __init__(self, matrix: iter | Vector2D):
         self.__curr_index = -1
         if isinstance(matrix, Vector2D):
             self.__Matrix, self.__rows, self.__cols = [[matrix.x()], [matrix.y()]], 2, 1
@@ -250,8 +250,9 @@ def onlyNums(matrix: Matrix):
                 if not isinstance(element, (int, float, complex)):
                     return False
         return True
-M0 = Matrix([[7, 4, -3], [2, 6, -1], [0, 4, -1]])
-M1 = Matrix([[-2, 4, 5], [3, 5, -3], [6, 2, 7]])
-M2 = Matrix([[-8, 2, 4], [1, 4, 6]])
-M2.transpose()
-print((M0 - 2 * M1) * M2)
+if __name__ == '__main__':
+    M0 = Matrix([[7, 4, -3], [2, 6, -1], [0, 4, -1]])
+    M1 = Matrix([[-2, 4, 5], [3, 5, -3], [6, 2, 7]])
+    M2 = Matrix([[-8, 2, 4], [1, 4, 6]])
+    M2 = M2.transposed()
+    print((M0 - 2 * M1) * M2)
