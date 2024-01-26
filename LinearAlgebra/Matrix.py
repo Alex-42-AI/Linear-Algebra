@@ -163,7 +163,7 @@ class Matrix:
             return self.__Matrix[self.__curr_index]
         self.__curr_index = -1
         raise StopIteration()
-    def __getitem__(self, i: int):
+    def __getitem__(self, i: int | slice):
         if isinstance(i, slice):
             return Matrix(self.__Matrix[i])
         i %= self.__rows
