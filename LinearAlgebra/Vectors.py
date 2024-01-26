@@ -1,4 +1,4 @@
-from math import asin, acos, sqrt
+from math import acos, sqrt
 class Vector2D:
     def __init__(self, x: int | float = 0.0, y: int | float = 0.0):
         self.__x, self.__y = x, y
@@ -10,7 +10,7 @@ class Vector2D:
         if not self:
             return 0, 0
         radius = abs(self)
-        return radius, asin(self.__y / radius)
+        return radius, (-1) ** (self.__y < 0) * acos(self.__x / radius)
     def copy(self):
         return Vector2D(self.__x, self.__y)
     def dot_product(self, other):
@@ -94,19 +94,7 @@ class Vector3D(Vector2D):
     def polar(self):
         if not self:
             return 0, 0, 0
-        cos_a = self.x() / sqrt(self.x() ** 2 + self.y() ** 2)
-        cos_b = self.x() / sqrt(self.x() ** 2 + self.__z ** 2)
-        a1, a2 = asin(self.y() / sqrt(self.x() ** 2 + self.y() ** 2)), acos(cos_a)
-        b1, b2 = asin(self.__z / sqrt(self.x() ** 2 + self.__z ** 2)), acos(cos_b)
-        if cos_a >= 0:
-            a = a1
-        else:
-            a = (-1) ** (a1 < 0) * a2
-        if cos_b >= 0:
-            b = b1
-        else:
-            b = (-1) ** (b1 < 0) * b2
-        return abs(self), a, b
+        return abs(self), (-1) ** (self.y() < 0) * acos(self.x() / sqrt(self.x() ** 2 + self.y() ** 2)), (-1) ** (self.__z < 0) * acos(self.x() / sqrt(self.x() ** 2 + self.__z ** 2))
     def copy(self):
         return Vector3D(self.x(), self.y(), self.__z)
     def dot_product(self, other):
