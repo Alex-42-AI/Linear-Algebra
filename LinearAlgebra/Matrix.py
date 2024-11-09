@@ -1,5 +1,5 @@
-from Personal.LinearAlgebra.Vectors import Vector2D, Vector3D
-from Personal.MathFormulas import round_if_possible
+from LinearAlgebra.Vectors import Vector2D, Vector3D
+from MathFormulas import round_if_possible
 def inversions(*args: float):
     Inversions = 0
     for i in range(len(args)):
